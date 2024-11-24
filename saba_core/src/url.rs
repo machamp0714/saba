@@ -37,13 +37,31 @@ impl Url {
     }
 
     pub fn extract_host(&mut self) -> String {
-        let parts = self
+        let url_parts = self
             .url
             .trim_start_matches("http://")
-            .splitn(2, &[':', '/'][..])
+            .splitn(2, '/')
             .collect::<Vec<&str>>();
 
-        parts[0].to_string()
+        if let Some(index) = url_parts[0].find(':') {
+            url_parts[0][..index].to_string()
+        } else {
+            url_parts[0].to_string()
+        }
+    }
+
+    pub fn extract_port(&mut self) -> String {
+        let url_parts = self
+            .url
+            .trim_start_matches("http://")
+            .splitn(2, '/')
+            .collect::<Vec<&str>>();
+
+        if let Some(index) = url_parts[0].find(':') {
+            url_parts[0][index + 1..].to_string()
+        } else {
+            "80".to_string()
+        }
     }
 }
 
@@ -79,5 +97,23 @@ mod tests {
     fn test_extract_host_with_path() {
         let mut url = Url::new("http://example.com/path".to_string());
         assert_eq!(url.extract_host(), "example.com".to_string());
+    }
+
+    #[test]
+    fn test_extract_port() {
+        let mut url = Url::new("http://example.com:8080".to_string());
+        assert_eq!(url.extract_port(), "8080".to_string());
+    }
+
+    #[test]
+    fn test_extract_port_with_path() {
+        let mut url = Url::new("http://example.com:8080/path".to_string());
+        assert_eq!(url.extract_port(), "8080".to_string());
+    }
+
+    #[test]
+    fn test_extract_port_without_port() {
+        let mut url = Url::new("http://example.com".to_string());
+        assert_eq!(url.extract_port(), "80".to_string());
     }
 }
