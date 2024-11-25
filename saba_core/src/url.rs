@@ -22,11 +22,34 @@ impl Url {
         }
     }
 
-    // pub fn parse(&mut self) -> Result<Self, String> {
-    //     if (!self.is_http()) {
-    //         // return error
-    //     }
-    // }
+    pub fn get_host(&self) -> String {
+        self.host.clone()
+    }
+
+    pub fn get_port(&self) -> String {
+        self.port.clone()
+    }
+
+    pub fn get_path(&self) -> String {
+        self.path.clone()
+    }
+
+    pub fn get_searchpart(&self) -> String {
+        self.searchpart.clone()
+    }
+
+    pub fn parse(&mut self) -> Result<Self, String> {
+        if (!self.is_http()) {
+            return Err("Only HTTP schema is supported.".to_string());
+        }
+
+        self.host = self.extract_host();
+        self.port = self.extract_port();
+        self.path = self.extract_path();
+        self.searchpart = self.extract_searchpart();
+
+        Ok(self.clone())
+    }
 
     pub fn is_http(&mut self) -> bool {
         if self.url.contains("http://") {
@@ -183,5 +206,29 @@ mod tests {
     fn test_extract_searchpart_without_path() {
         let mut url = Url::new("http://example.com:8080".to_string());
         assert_eq!(url.extract_searchpart(), "".to_string());
+    }
+
+    #[test]
+    fn test_parse() {
+        let mut url = Url::new("http://example.com:8080/path/hoge?hoge=hoge".to_string());
+        assert_eq!(
+            url.parse(),
+            Ok(Url {
+                url: "http://example.com:8080/path/hoge?hoge=hoge".to_string(),
+                host: "example.com".to_string(),
+                port: "8080".to_string(),
+                path: "path/hoge".to_string(),
+                searchpart: "hoge=hoge".to_string()
+            })
+        );
+    }
+
+    #[test]
+    fn test_parse_with_https() {
+        let mut url = Url::new("https://example.com:8080/path/hoge?hoge=hoge".to_string());
+        assert_eq!(
+            url.parse(),
+            Err("Only HTTP schema is supported.".to_string())
+        );
     }
 }
