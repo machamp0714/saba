@@ -77,6 +77,24 @@ impl Url {
 
         url_parts[1].splitn(2, "?").collect::<Vec<&str>>()[0].to_string()
     }
+
+    pub fn extract_searchpart(&mut self) -> String {
+        let url_parts = self
+            .url
+            .trim_start_matches("http://")
+            .splitn(2, "/")
+            .collect::<Vec<&str>>();
+
+        if url_parts.len() < 2 {
+            return "".to_string();
+        }
+
+        if url_parts[1].contains("?") {
+            url_parts[1].splitn(2, "?").collect::<Vec<&str>>()[1].to_string()
+        } else {
+            "".to_string()
+        }
+    }
 }
 
 #[cfg(test)] // テスト時にのみコンパイルされることを示す
@@ -147,5 +165,23 @@ mod tests {
     fn test_extract_path_with_port() {
         let mut url = Url::new("http://example.com:8080/path/hoge".to_string());
         assert_eq!(url.extract_path(), "path/hoge".to_string());
+    }
+
+    #[test]
+    fn test_extract_searchpart() {
+        let mut url = Url::new("http://example.com/path/hoge?hoge=hoge".to_string());
+        assert_eq!(url.extract_searchpart(), "hoge=hoge".to_string());
+    }
+
+    #[test]
+    fn test_extract_searchpart_without_searchpart() {
+        let mut url = Url::new("http://example.com/path/hoge".to_string());
+        assert_eq!(url.extract_searchpart(), "".to_string());
+    }
+
+    #[test]
+    fn test_extract_searchpart_without_path() {
+        let mut url = Url::new("http://example.com:8080".to_string());
+        assert_eq!(url.extract_searchpart(), "".to_string());
     }
 }
