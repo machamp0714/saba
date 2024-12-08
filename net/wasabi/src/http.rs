@@ -42,7 +42,7 @@ impl HttpClient {
                     "Failed to connect to TCP stream".to_string()
                 )))
             }
-        }
+        };
 
         // リクエストラインの構築
         let mut request = String::from("GET /");
@@ -65,7 +65,7 @@ impl HttpClient {
                     "Failed to send a request to TCP stream".to_string(),
                 ))
             }
-        }
+        };
 
         // レスポンスの受信
         let mut received = Vec::new();
@@ -78,8 +78,8 @@ impl HttpClient {
                         "Failed to receive a request from TCP stream".to_string(),
                     ))
                 }
-            }
-            if bytes_read== 0 {
+            };
+            if bytes_read == 0 {
                 break;
             }
             received.extend_from_slice(&buf[..bytes_read]);
@@ -88,9 +88,7 @@ impl HttpClient {
         // HTTPレスポンスの構築
         match core::str::from_utf8(&received) {
             Ok(response) => HttpResponse::new(response.to_string()),
-            Err(e) => Err(Error::Network(
-                format!("Invalid received response: {}", e)
-            ))
+            Err(e) => Err(Error::Network(format!("Invalid received response: {}", e))),
         }
     }
 }

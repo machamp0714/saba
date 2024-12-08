@@ -39,7 +39,7 @@ impl Url {
     }
 
     pub fn parse(&mut self) -> Result<Self, String> {
-        if (!self.is_http()) {
+        if !self.is_http() {
             return Err("Only HTTP schema is supported.".to_string());
         }
 

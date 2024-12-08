@@ -1,5 +1,5 @@
 [workspace]
-members = [ "core", "net/wasabi" ]
+members = [ "saba_core", "net/wasabi" ]
 
 [package]
 authors = ["machamp0714"]
